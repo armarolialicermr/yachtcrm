@@ -1,0 +1,11 @@
+@{
+  ViewData["Title"] = "Home";
+}
+<div class="p-5 mb-4 bg-light rounded-3">
+  <div class="container-fluid py-5">
+    <h1 class="display-5 fw-bold">Yacht Shipyard CRM</h1>
+    <p class="col-md-8 fs-4">Start clean: track customers and projects, export data for regression, and preview predictions.</p>
+    <a class="btn btn-primary btn-lg" asp-controller="Projects" asp-action="Index">View Projects</a>
+    <a class="btn btn-outline-secondary btn-lg ms-2" href="/analytics/export/projects.csv">Export CSV</a>
+  </div>
+</div>

@@ -1,0 +1,57 @@
+@model IEnumerable<YachtCRM.Domain.Project>
+@{
+    ViewData["Title"] = "Projects";
+}
+
+<h2 class="mb-3">Projects</h2>
+
+@if (TempData["Flash"] is string msg)
+{
+    <div class="alert alert-success">@msg</div>
+}
+
+<p>
+    <a class="btn btn-success" asp-action="Create">+ New Project</a>
+    <a class="btn btn-outline-secondary ms-2" href="/analytics/export/projects.csv">Export CSV</a>
+</p>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">
+        No projects yet. Click <strong>+ New Project</strong> to create your first one.
+    </div>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th style="width: 80px;">ID</th>
+                <th>Name</th>
+                <th>Customer</th>
+                <th>Model</th>
+                <th class="text-end" style="width: 160px;">Total Price</th>
+                <th style="width: 140px;">Status</th>
+                <th style="width: 120px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.ProjectID</td>
+                <td>@p.Name</td>
+                <td>@p.Customer?.Name</td>
+                <td>@p.YachtModel?.ModelName</td>
+                <td class="text-end">@p.TotalPrice.ToString("C")</td>
+                <td>
+                    <span class="badge bg-info">@p.Status</span>
+                </td>
+                <td>
+                    <a class="btn btn-sm btn-primary" asp-action="Details" asp-route-id="@p.ProjectID">Details</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

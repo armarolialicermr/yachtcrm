@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "YachtCRM.Application/1.0.0": {
+        "dependencies": {
+          "YachtCRM.Domain": "1.0.0"
+        },
+        "runtime": {
+          "YachtCRM.Application.dll": {}
+        }
+      },
+      "YachtCRM.Domain/1.0.0": {
+        "runtime": {
+          "YachtCRM.Domain.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "YachtCRM.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "YachtCRM.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

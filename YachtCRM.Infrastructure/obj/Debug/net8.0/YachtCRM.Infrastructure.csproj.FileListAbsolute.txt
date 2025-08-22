@@ -1,0 +1,17 @@
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/obj/Debug/net8.0/YachtCRM.Infrastructure.csproj.AssemblyReference.cache
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/obj/Debug/net8.0/YachtCRM.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/obj/Debug/net8.0/YachtCRM.Infrastructure.AssemblyInfoInputs.cache
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/obj/Debug/net8.0/YachtCRM.Infrastructure.AssemblyInfo.cs
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/obj/Debug/net8.0/YachtCRM.Infrastructure.csproj.CoreCompileInputs.cache
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/bin/Debug/net8.0/YachtCRM.Infrastructure.deps.json
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/bin/Debug/net8.0/YachtCRM.Infrastructure.dll
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/bin/Debug/net8.0/YachtCRM.Infrastructure.pdb
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/bin/Debug/net8.0/YachtCRM.Application.dll
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/bin/Debug/net8.0/YachtCRM.Domain.dll
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/bin/Debug/net8.0/YachtCRM.Domain.pdb
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/bin/Debug/net8.0/YachtCRM.Application.pdb
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/obj/Debug/net8.0/YachtCRM.BEC37916.Up2Date
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/obj/Debug/net8.0/YachtCRM.Infrastructure.dll
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/obj/Debug/net8.0/refint/YachtCRM.Infrastructure.dll
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/obj/Debug/net8.0/YachtCRM.Infrastructure.pdb
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/obj/Debug/net8.0/ref/YachtCRM.Infrastructure.dll
