@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("YachtCRM.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4de18ffccb67826d12a863f51d23828ad376b977")]
 [assembly: System.Reflection.AssemblyProductAttribute("YachtCRM.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("YachtCRM.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

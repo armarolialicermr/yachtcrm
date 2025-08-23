@@ -1,0 +1,12 @@
+@model YachtCRM.Domain.Interaction
+@{
+  ViewData["Title"] = "Delete Interaction";
+}
+<div class="alert alert-danger">
+  <h4>Delete @Model.Type on @Model.OccurredOn.ToLocalTime():g ?</h4>
+</div>
+<form asp-action="Delete" method="post">
+  <input type="hidden" asp-for="InteractionID" />
+  <button class="btn btn-danger">Delete</button>
+  <a asp-action="Index" asp-route-customerId="@Model.CustomerID" class="btn btn-outline-secondary ms-2">Cancel</a>
+</form>

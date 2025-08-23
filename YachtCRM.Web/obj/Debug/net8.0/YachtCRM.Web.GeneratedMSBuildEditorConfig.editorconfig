@@ -18,8 +18,64 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = /Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web
 build_property._RazorSourceGeneratorDebug = 
 
+[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/ChangeRequests/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hhbmdlUmVxdWVzdHMvQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/ChangeRequests/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hhbmdlUmVxdWVzdHMvRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/ChangeRequests/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hhbmdlUmVxdWVzdHMvRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/ChangeRequests/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hhbmdlUmVxdWVzdHMvRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/ChangeRequests/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2hhbmdlUmVxdWVzdHMvSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/Customers/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ3VzdG9tZXJzL0NyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/Customers/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ3VzdG9tZXJzL0RlbGV0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/Customers/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ3VzdG9tZXJzL0RldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/Customers/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ3VzdG9tZXJzL0VkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/Customers/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ3VzdG9tZXJzL0luZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/Interactions/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSW50ZXJhY3Rpb25zL0NyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/Interactions/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSW50ZXJhY3Rpb25zL0RlbGV0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/Interactions/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSW50ZXJhY3Rpb25zL0VkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/Interactions/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSW50ZXJhY3Rpb25zL0luZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/Projects/Create.cshtml]
@@ -38,8 +94,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/Shared/_ValidationScriptPartial.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0UGFydGlhbC5jc2h0bWw=
+[/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Web/Views/_ViewImports.cshtml]

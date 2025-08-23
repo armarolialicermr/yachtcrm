@@ -1,0 +1,23 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+
+# Published outputs
+**/publish/
+
+# Local data
+*.db
+*.sqlite
+*.sqlite3
+*.db3
+*.log
+*.zip
+*.tgz
+
+# User secrets & env
+*.user
+*.csproj.user
+secrets.json
+.env

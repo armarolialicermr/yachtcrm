@@ -1,0 +1,13 @@
+@model YachtCRM.Domain.Customer
+@{
+  ViewData["Title"] = "Delete Customer";
+}
+<div class="alert alert-danger">
+  <h4>Delete @Model.Name?</h4>
+  <p>This action cannot be undone.</p>
+</div>
+<form asp-action="Delete" method="post">
+  <input type="hidden" asp-for="CustomerID" />
+  <button class="btn btn-danger">Delete</button>
+  <a asp-action="Details" asp-route-id="@Model.CustomerID" class="btn btn-outline-secondary ms-2">Cancel</a>
+</form>

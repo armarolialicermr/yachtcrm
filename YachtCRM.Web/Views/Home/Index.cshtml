@@ -1,11 +1,521 @@
+@model YachtCRM.Web.ViewModels.DashboardViewModel
 @{
-  ViewData["Title"] = "Home";
+    ViewData["Title"] = "Dashboard";
 }
-<div class="p-5 mb-4 bg-light rounded-3">
-  <div class="container-fluid py-5">
-    <h1 class="display-5 fw-bold">Yacht Shipyard CRM</h1>
-    <p class="col-md-8 fs-4">Start clean: track customers and projects, export data for regression, and preview predictions.</p>
-    <a class="btn btn-primary btn-lg" asp-controller="Projects" asp-action="Index">View Projects</a>
-    <a class="btn btn-outline-secondary btn-lg ms-2" href="/analytics/export/projects.csv">Export CSV</a>
+
+@if (TempData["Flash"] is string flash)
+{
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    @flash
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+}
+
+<div class="row g-3 mb-3">
+  <div class="col-md-3">
+    <div class="card shadow-sm"><div class="card-body">
+      <div class="text-muted">Projects</div>
+      <div class="h3 mb-0">@Model.TotalProjects</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm"><div class="card-body">
+      <div class="text-muted">Customers</div>
+      <div class="h3 mb-0">@Model.TotalCustomers</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm"><div class="card-body">
+      <div class="text-muted">Change Requests</div>
+      <div class="h3 mb-0">@Model.TotalChangeRequests</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm"><div class="card-body">
+      <div class="text-muted">Interactions</div>
+      <div class="h3 mb-0">@Model.TotalInteractions</div>
+    </div></div>
   </div>
 </div>
+
+<div class="mb-3 d-flex align-items-center flex-wrap gap-2">
+  <a class="btn btn-primary" asp-controller="Projects" asp-action="Index">View Projects</a>
+  <a class="btn btn-outline-secondary" href="/analytics/export/projects.csv">Export CSV</a>
+  <a class="btn btn-outline-primary" asp-controller="Customers" asp-action="Index">Customers</a>
+  <a class="btn btn-outline-primary" asp-controller="Interactions" asp-action="Index">Interactions</a>
+
+  <!-- Dev/demo seed buttons -->
+  <form method="post" action="/admin/seed/big" class="ms-2">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="count" value="500" />
+    <button class="btn btn-outline-secondary">Seed 500 (Multi-yard)</button>
+  </form>
+  <form method="post" action="/admin/seed/big?single=true&name=Cantieri%20Demo%20S.p.A." class="ms-2">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="count" value="500" />
+    <button class="btn btn-outline-dark">Seed 500 (Cantieri Demo S.p.A.)</button>
+  </form>
+</div>
+
+<!-- Key Stats row (auto-computed client-side) -->
+<div class="row g-3 mb-3" id="statsRow" style="display:none;">
+  <div class="col-md-2">
+    <div class="card shadow-sm"><div class="card-body">
+      <div class="text-muted small">Avg Predicted Delay</div>
+      <div class="h5 mb-0" id="statAvgDelay">–</div>
+    </div></div>
+  </div>
+  <div class="col-md-2">
+    <div class="card shadow-sm"><div class="card-body">
+      <div class="text-muted small">Median Predicted Delay</div>
+      <div class="h5 mb-0" id="statMedianDelay">–</div>
+    </div></div>
+  </div>
+  <div class="col-md-2">
+    <div class="card shadow-sm"><div class="card-body">
+      <div class="text-muted small">90th %ile Pred. Delay</div>
+      <div class="h5 mb-0" id="statP90Delay">–</div>
+    </div></div>
+  </div>
+  <div class="col-md-2">
+    <div class="card shadow-sm"><div class="card-body">
+      <div class="text-muted small">Avg CRs / Project</div>
+      <div class="h5 mb-0" id="statAvgCR">–</div>
+    </div></div>
+  </div>
+  <div class="col-md-2">
+    <div class="card shadow-sm"><div class="card-body">
+      <div class="text-muted small">r (Tasks ↔ Length)</div>
+      <div class="h5 mb-0" id="statRTasksLen">–</div>
+    </div></div>
+  </div>
+  <div class="col-md-2">
+    <div class="card shadow-sm"><div class="card-body">
+      <div class="text-muted small">r (CR ↔ Pred. Delay)</div>
+      <div class="h5 mb-0" id="statRCRDelay">–</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Projects by Status</h5>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-outline-secondary" id="btnDlStatus">Download PNG</button>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalStatus">Expand</button>
+          </div>
+        </div>
+        <canvas id="statusChart" class="mt-2"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Tasks vs Length</h5>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-outline-secondary" id="btnDlTL">Download PNG</button>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalTL">Expand</button>
+          </div>
+        </div>
+        <canvas id="tasksLengthChart" class="mt-2"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Change Requests vs Predicted Delay</h5>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-outline-secondary" id="btnDlCR">Download PNG</button>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalCR">Expand</button>
+          </div>
+        </div>
+        <canvas id="crDelayChart" class="mt-2"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mt-1">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Top Predicted Delays</h5>
+
+        @if (Model.TopPredictedDelays == null || !Model.TopPredictedDelays.Any())
+        {
+          <p class="text-muted mb-0">No projects to rank yet.</p>
+        }
+        else
+        {
+          <div class="table-responsive">
+            <table class="table table-striped align-middle mb-0">
+              <thead>
+                <tr>
+                  <th style="width:60px;">#</th>
+                  <th>Project</th>
+                  <th>Customer</th>
+                  <th class="text-end" style="width:160px;">Predicted Delay (d)</th>
+                  <th class="text-end" style="width:120px;">CR</th>
+                  <th class="text-end" style="width:120px;">Tasks</th>
+                  <th class="text-end" style="width:140px;">Length (m)</th>
+                  <th style="width:120px;"></th>
+                </tr>
+              </thead>
+              <tbody>
+              @{
+                var rank = 1;
+                foreach (var r in Model.TopPredictedDelays)
+                {
+                  <tr>
+                    <td>@rank</td>
+                    <td class="text-truncate" style="max-width:280px;">@r.ProjectName</td>
+                    <td class="text-truncate" style="max-width:220px;">@r.CustomerName</td>
+                    <td class="text-end">@r.PredictedDelayDays.ToString("0.0")</td>
+                    <td class="text-end">@r.ChangeRequests</td>
+                    <td class="text-end">@r.Tasks</td>
+                    <td class="text-end">@r.Length.ToString("0.##")</td>
+                    <td>
+                      <a class="btn btn-sm btn-primary"
+                         asp-controller="Projects"
+                         asp-action="Details"
+                         asp-route-id="@r.ProjectID">Details</a>
+                    </td>
+                  </tr>
+                  rank++;
+                }
+              }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modals for full-screen charts ===== -->
+<div class="modal fade" id="modalStatus" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Projects by Status</h5>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnDlStatusModal">Download PNG</button>
+        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3">
+        <canvas id="statusChartModal"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalTL" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Tasks vs Length</h5>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnDlTLModal">Download PNG</button>
+        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3">
+        <canvas id="tasksLengthChartModal"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalCR" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Change Requests vs Predicted Delay</h5>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnDlCRModal">Download PNG</button>
+        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3">
+        <canvas id="crDelayChartModal"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+// =============== Helpers ===============
+function linReg(points) {
+  const n = points.length;
+  if (n < 2) return null;
+  let sumX=0, sumY=0, sumXY=0, sumX2=0, sumY2=0;
+  for (const p of points) { sumX+=p.x; sumY+=p.y; sumXY+=p.x*p.y; sumX2+=p.x*p.x; sumY2+=p.y*p.y; }
+  const denom = (n*sumX2 - sumX*sumX);
+  if (denom === 0) return null;
+  const a = (n*sumXY - sumX*sumY) / denom;
+  const b = (sumY - a*sumX) / n;
+  const meanY = sumY / n;
+  let ssTot = 0, ssRes = 0;
+  for (const p of points) {
+    const yhat = a*p.x + b;
+    ssTot += (p.y - meanY)**2;
+    ssRes += (p.y - yhat)**2;
+  }
+  const r2 = ssTot === 0 ? 1 : 1 - (ssRes/ssTot);
+  const xs = points.map(p => p.x);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  return { a, b, r2, minX, maxX };
+}
+function pearsonR(points) {
+  const n = points.length; if (n < 2) return null;
+  let sx=0, sy=0, sxx=0, syy=0, sxy=0;
+  for (const p of points) { sx+=p.x; sy+=p.y; sxx+=p.x*p.x; syy+=p.y*p.y; sxy+=p.x*p.y; }
+  const cov = (sxy - sx*sy/n);
+  const vx = (sxx - sx*sx/n);
+  const vy = (syy - sy*sy/n);
+  if (vx <= 0 || vy <= 0) return null;
+  return cov / Math.sqrt(vx*vy);
+}
+function trendlineDataset(fit, label = "Trendline") {
+  if (!fit) return null;
+  return {
+    label,
+    type: 'line',
+    data: [
+      { x: fit.minX, y: fit.a*fit.minX + fit.b },
+      { x: fit.maxX, y: fit.a*fit.maxX + fit.b }
+    ],
+    parsing: false,
+    pointRadius: 0,
+    borderWidth: 2,
+    borderDash: [6,4]
+  };
+}
+function downloadChartPNG(chart, filename) {
+  const a = document.createElement('a');
+  a.href = chart.toBase64Image('image/png', 1.0);
+  a.download = filename;
+  a.click();
+}
+function mean(arr){ return arr.length? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
+function median(arr){
+  if(!arr.length) return 0;
+  const s=[...arr].sort((a,b)=>a-b);
+  const m=Math.floor(s.length/2);
+  return s.length%2 ? s[m] : (s[m-1]+s[m])/2;
+}
+function percentile(arr, p){
+  if(!arr.length) return 0;
+  const s=[...arr].sort((a,b)=>a-b);
+  const idx = (s.length-1)*p;
+  const lo = Math.floor(idx), hi = Math.ceil(idx);
+  if (lo===hi) return s[lo];
+  const w = idx - lo;
+  return s[lo]*(1-w) + s[hi]*w;
+}
+
+// -------- Data from server --------
+const statusLabels = @Html.Raw(Model.StatusLabelsJson);
+const statusData   = @Html.Raw(Model.StatusDataJson);
+const tvlPoints    = @Html.Raw(Model.TasksVsLengthPointsJson); // [{x,y,label,id}]
+const crdPoints    = @Html.Raw(Model.CrVsDelayPointsJson);     // [{x (CR), y (PredDelay), label, id}]
+
+// =============== Status doughnut ===============
+const statusCtx = document.getElementById('statusChart');
+const statusChart = new Chart(statusCtx, {
+  type: 'doughnut',
+  data: { labels: statusLabels, datasets: [{ data: statusData }] },
+  options: { plugins: { legend: { position: 'bottom' } } }
+});
+statusCtx.onclick = (evt) => {
+  const points = statusChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+  if (!points?.length) return;
+  const idx = points[0].index;
+  const label = statusChart.data.labels[idx];
+  if (label) window.location.href = `/Projects?status=${encodeURIComponent(label)}`;
+};
+document.getElementById('btnDlStatus').onclick = () => downloadChartPNG(statusChart, 'projects-by-status.png');
+
+// =============== Tasks vs Length ===============
+const tlCtx = document.getElementById('tasksLengthChart');
+const tlFit = linReg(tvlPoints.map(p => ({x:+p.x, y:+p.y})));
+const tlTrend = trendlineDataset(tlFit, "Trendline");
+const tlDatasets = [{ label: 'Projects', data: tvlPoints, parsing: false }];
+if (tlTrend) tlDatasets.push(tlTrend);
+
+const tlChart = new Chart(tlCtx, {
+  type: 'scatter',
+  data: { datasets: tlDatasets },
+  options: {
+    parsing: false,
+    scales: { x: { title: { display: true, text: 'Length (m)' } }, y: { title: { display: true, text: '# Tasks' } } },
+    plugins: {
+      title: { display: !!tlFit, text: tlFit ? `Tasks vs Length — R² = ${tlFit.r2.toFixed(3)}` : 'Tasks vs Length' },
+      tooltip: { filter: (ctx) => ctx.dataset.type !== 'line', callbacks: { label: ctx => `${ctx.raw.label}: L=${ctx.raw.x}, Tasks=${ctx.raw.y}` } }
+    }
+  }
+});
+document.getElementById('btnDlTL').onclick = () => downloadChartPNG(tlChart, 'tasks-vs-length.png');
+tlCtx.onclick = (evt) => {
+  const pts = tlChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+  if (!pts?.length) return;
+  const dsIdx = pts[0].datasetIndex;
+  if (tlChart.data.datasets[dsIdx]?.type === 'line') return;
+  const idx = pts[0].index;
+  const point = tlChart.data.datasets[0].data[idx];
+  if (point?.id) window.location.href = `/Projects/Details/${point.id}`;
+};
+
+// =============== CR vs Predicted Delay ===============
+const crCtx = document.getElementById('crDelayChart');
+const crFit = linReg(crdPoints.map(p => ({x:+p.x, y:+p.y})));
+const crTrend = trendlineDataset(crFit, "Trendline");
+const crDatasets = [{ label: 'Projects', data: crdPoints, parsing: false }];
+if (crTrend) crDatasets.push(crTrend);
+
+const crChart = new Chart(crCtx, {
+  type: 'scatter',
+  data: { datasets: crDatasets },
+  options: {
+    parsing: false,
+    scales: { x: { title: { display: true, text: 'Change Requests (count)' } }, y: { title: { display: true, text: 'Predicted Delay (days)' } } },
+    plugins: {
+      title: { display: !!crFit, text: crFit ? `CR vs Predicted Delay — R² = ${crFit.r2.toFixed(3)}` : 'CR vs Predicted Delay' },
+      tooltip: { filter: (ctx) => ctx.dataset.type !== 'line', callbacks: { label: ctx => `${ctx.raw.label}: CR=${ctx.raw.x}, Delay=${(+ctx.raw.y).toFixed(1)}d` } }
+    }
+  }
+});
+document.getElementById('btnDlCR').onclick = () => downloadChartPNG(crChart, 'cr-vs-predicted-delay.png');
+crCtx.onclick = (evt) => {
+  const pts = crChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+  if (!pts?.length) return;
+  const dsIdx = pts[0].datasetIndex;
+  if (crChart.data.datasets[dsIdx]?.type === 'line') return;
+  const idx = pts[0].index;
+  const point = crChart.data.datasets[0].data[idx];
+  if (point?.id) window.location.href = `/Projects/Details/${point.id}`;
+};
+
+// =============== Compute and show Key Stats ===============
+(function computeStats(){
+  if (!crdPoints?.length) return;
+  const delays = crdPoints.map(p => +p.y).filter(Number.isFinite);
+  const crs    = crdPoints.map(p => +p.x).filter(Number.isFinite);
+  const tlPairs = tvlPoints.map(p => ({x:+p.x, y:+p.y})).filter(p => Number.isFinite(p.x) && Number.isFinite(p.y));
+  const crPairs = crdPoints.map(p => ({x:+p.x, y:+p.y})).filter(p => Number.isFinite(p.x) && Number.isFinite(p.y));
+
+  const avgDelay   = mean(delays);
+  const medDelay   = median(delays);
+  const p90Delay   = percentile(delays, 0.90);
+  const avgCR      = mean(crs);
+  const rTL        = pearsonR(tlPairs);
+  const rCR        = pearsonR(crPairs);
+
+  document.getElementById('statAvgDelay').innerText = isFinite(avgDelay) ? `${avgDelay.toFixed(1)} d` : '–';
+  document.getElementById('statMedianDelay').innerText = isFinite(medDelay) ? `${medDelay.toFixed(1)} d` : '–';
+  document.getElementById('statP90Delay').innerText = isFinite(p90Delay) ? `${p90Delay.toFixed(1)} d` : '–';
+  document.getElementById('statAvgCR').innerText = isFinite(avgCR) ? avgCR.toFixed(2) : '–';
+  document.getElementById('statRTasksLen').innerText = (rTL==null) ? '–' : `${rTL.toFixed(2)} (R² ${(rTL*rTL).toFixed(2)})`;
+  document.getElementById('statRCRDelay').innerText = (rCR==null) ? '–' : `${rCR.toFixed(2)} (R² ${(rCR*rCR).toFixed(2)})`;
+
+  // Finally reveal the stats row
+  document.getElementById('statsRow').style.display = 'flex';
+})();
+/* ---------- Modal chart helpers ---------- */
+
+// Give modal canvases a real height so Chart.js can layout.
+(function ensureModalCanvasStyle(){
+  const style = document.createElement('style');
+  style.innerHTML = `
+    .modal-body canvas { width: 100% !important; height: 80vh !important; }
+  `;
+  document.head.appendChild(style);
+})();
+
+// Deep-clone a plain object (Chart config/data)
+function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
+
+// Build a modal chart from a base config (reuse data + options, but disable aspect ratio)
+function buildModalConfig(baseConfig, titleSuffix){
+  const cfg = {
+    type: baseConfig.type,
+    data: deepClone(baseConfig.data),
+    options: deepClone(baseConfig.options || {})
+  };
+  // Make it fill modal height and recompute layout
+  cfg.options.maintainAspectRatio = false;
+  cfg.options.responsive = true;
+
+  // If we had a title, append suffix so it's clear in full-screen
+  if (cfg.options.plugins && cfg.options.plugins.title && cfg.options.plugins.title.text) {
+    const t = cfg.options.plugins.title.text;
+    cfg.options.plugins.title.text = Array.isArray(t) ? [...t, titleSuffix] : `${t} ${titleSuffix}`;
+  }
+  return cfg;
+}
+
+// Keep refs so we don't create duplicates
+let statusModalChart = null;
+let tlModalChart = null;
+let crModalChart = null;
+
+// ----- 1) Status modal -----
+const statusModalEl = document.getElementById('modalStatus');
+statusModalEl.addEventListener('shown.bs.modal', function () {
+  const cvs = document.getElementById('statusChartModal');
+  if (statusModalChart) { statusModalChart.destroy(); }
+  const cfg = buildModalConfig(statusChart.config, '(Expanded)');
+  statusModalChart = new Chart(cvs, cfg);
+  statusModalChart.resize();
+});
+statusModalEl.addEventListener('hidden.bs.modal', function () {
+  if (statusModalChart) { statusModalChart.destroy(); statusModalChart = null; }
+});
+document.getElementById('btnDlStatusModal').onclick = () => {
+  if (statusModalChart) downloadChartPNG(statusModalChart, 'projects-by-status_large.png');
+};
+
+// ----- 2) Tasks vs Length modal -----
+const tlModalEl = document.getElementById('modalTL');
+tlModalEl.addEventListener('shown.bs.modal', function () {
+  const cvs = document.getElementById('tasksLengthChartModal');
+  if (tlModalChart) { tlModalChart.destroy(); }
+  const cfg = buildModalConfig(tlChart.config, '(Expanded)');
+  // Recompute trendline at this size (optional; data already has it)
+  tlModalChart = new Chart(cvs, cfg);
+  tlModalChart.resize();
+});
+tlModalEl.addEventListener('hidden.bs.modal', function () {
+  if (tlModalChart) { tlModalChart.destroy(); tlModalChart = null; }
+});
+document.getElementById('btnDlTLModal').onclick = () => {
+  if (tlModalChart) downloadChartPNG(tlModalChart, 'tasks-vs-length_large.png');
+};
+
+// ----- 3) CR vs Predicted Delay modal -----
+const crModalEl = document.getElementById('modalCR');
+crModalEl.addEventListener('shown.bs.modal', function () {
+  const cvs = document.getElementById('crDelayChartModal');
+  if (crModalChart) { crModalChart.destroy(); }
+  const cfg = buildModalConfig(crChart.config, '(Expanded)');
+  crModalChart = new Chart(cvs, cfg);
+  crModalChart.resize();
+});
+crModalEl.addEventListener('hidden.bs.modal', function () {
+  if (crModalChart) { crModalChart.destroy(); crModalChart = null; }
+});
+document.getElementById('btnDlCRModal').onclick = () => {
+  if (crModalChart) downloadChartPNG(crModalChart, 'cr-vs-predicted-delay_large.png');
+};
+
+</script>
+}
+
+
+
+

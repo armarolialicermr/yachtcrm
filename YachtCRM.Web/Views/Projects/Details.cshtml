@@ -44,6 +44,25 @@
       </div>
     </div>
   </div>
+  <div class="card shadow-sm mt-3">
+  <div class="card-body">
+    <h5 class="card-title">Change Requests (@Model.ChangeRequests.Count)</h5>
+    @if (!Model.ChangeRequests.Any()) {
+      <p class="text-muted mb-0">No change requests yet.</p>
+    } else {
+      <ul class="list-group list-group-flush">
+        @foreach (var c in Model.ChangeRequests.OrderByDescending(x => x.ApprovedOn).Take(10))
+        {
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span class="text-truncate" style="max-width:70%;">@c.Title</span>
+            <a class="btn btn-sm btn-outline-primary" asp-controller="ChangeRequests" asp-action="Details" asp-route-id="@c.ChangeRequestID">Open</a>
+          </li>
+        }
+      </ul>
+    }
+    <a class="btn btn-success mt-3" asp-controller="ChangeRequests" asp-action="Create" asp-route-projectId="@Model.ProjectID">+ New Change Request</a>
+  </div>
+</div>
   <div class="col-lg-4">
     <div class="card shadow-sm">
       <div class="card-body">

@@ -18,10 +18,60 @@ namespace YachtCRM.Web.Controllers
             _db = db;
         }
 
-        public async Task<IActionResult> Index()
+        // /Projects?status=InProgress&q=aurora&customerId=12&page=1&pageSize=25
+        public async Task<IActionResult> Index(
+            string? status, string? q, int? customerId, int page = 1, int pageSize = 25)
         {
-            var projects = await _svc.ListAsync();
-            return View(projects);
+            if (page < 1) page = 1;
+            if (pageSize < 5) pageSize = 5;
+            if (pageSize > 200) pageSize = 200;
+
+            var query = _db.Projects
+                .AsNoTracking()
+                .Include(p => p.Customer)
+                .Include(p => p.YachtModel)
+                .AsQueryable();
+
+            if (customerId.HasValue)
+            {
+                query = query.Where(p => p.CustomerID == customerId.Value);
+                ViewBag.CustomerId = customerId;
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                var s = status.Trim();
+                query = query.Where(p => (p.Status ?? "").ToLower() == s.ToLower());
+                ViewBag.FilterStatus = s;
+            }
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                q = q.Trim();
+                query = query.Where(p =>
+                    EF.Functions.Like(p.Name, $"%{q}%") ||
+                    (p.Customer != null && EF.Functions.Like(p.Customer.Name, $"%{q}%")) ||
+                    (p.YachtModel != null && EF.Functions.Like(p.YachtModel.ModelName, $"%{q}%")));
+                ViewBag.Query = q;
+            }
+
+            var total = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(total / (double)pageSize);
+            if (totalPages == 0) totalPages = 1;
+            if (page > totalPages) page = totalPages;
+
+            var items = await query
+                .OrderByDescending(p => p.ProjectID)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.Total = total;
+            ViewBag.TotalPages = totalPages;
+
+            return View(items);
         }
 
         public async Task<IActionResult> Details(int id)
@@ -34,9 +84,20 @@ namespace YachtCRM.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            ViewBag.Customers   = new SelectList(await _db.Customers.OrderBy(c => c.Name).ToListAsync(), "CustomerID", "Name");
-            ViewBag.YachtModels = new SelectList(await _db.YachtModels.OrderBy(m => m.ModelName).ToListAsync(), "ModelID", "ModelName");
-            return View(new Project { PlannedStart = DateTime.UtcNow.Date, PlannedEnd = DateTime.UtcNow.Date.AddDays(120), Status = "Planning" });
+            ViewBag.Customers = new SelectList(
+                await _db.Customers.AsNoTracking().OrderBy(c => c.Name).ToListAsync(),
+                "CustomerID", "Name");
+
+            ViewBag.YachtModels = new SelectList(
+                await _db.YachtModels.AsNoTracking().OrderBy(m => m.ModelName).ToListAsync(),
+                "ModelID", "ModelName");
+
+            return View(new Project
+            {
+                PlannedStart = DateTime.UtcNow.Date,
+                PlannedEnd = DateTime.UtcNow.Date.AddDays(120),
+                Status = "Planning"
+            });
         }
 
         [HttpPost]
@@ -45,8 +106,14 @@ namespace YachtCRM.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Customers   = new SelectList(await _db.Customers.OrderBy(c => c.Name).ToListAsync(), "CustomerID", "Name", model.CustomerID);
-                ViewBag.YachtModels = new SelectList(await _db.YachtModels.OrderBy(m => m.ModelName).ToListAsync(), "ModelID", "ModelName", model.YachtModelID);
+                ViewBag.Customers = new SelectList(
+                    await _db.Customers.AsNoTracking().OrderBy(c => c.Name).ToListAsync(),
+                    "CustomerID", "Name", model.CustomerID);
+
+                ViewBag.YachtModels = new SelectList(
+                    await _db.YachtModels.AsNoTracking().OrderBy(m => m.ModelName).ToListAsync(),
+                    "ModelID", "ModelName", model.YachtModelID);
+
                 return View(model);
             }
 
@@ -63,11 +130,12 @@ namespace YachtCRM.Web.Controllers
             var proj = await _db.Projects.FindAsync(id);
             if (proj == null) return NotFound();
 
-            _db.Interactions.Add(new Interaction {
+            _db.Interactions.Add(new Interaction
+            {
                 CustomerID = proj.CustomerID,
-                ProjectID  = id,
-                Type       = string.IsNullOrWhiteSpace(type) ? "Meeting" : type,
-                Notes      = notes
+                ProjectID = id,
+                Type = string.IsNullOrWhiteSpace(type) ? "Meeting" : type,
+                Notes = notes
             });
 
             await _db.SaveChangesAsync();
@@ -82,12 +150,13 @@ namespace YachtCRM.Web.Controllers
             var proj = await _db.Projects.FindAsync(id);
             if (proj == null) return NotFound();
 
-            _db.ChangeRequests.Add(new ChangeRequest {
-                ProjectID  = id,
-                Title      = string.IsNullOrWhiteSpace(title) ? "Change request" : title,
+            _db.ChangeRequests.Add(new ChangeRequest
+            {
+                ProjectID = id,
+                Title = string.IsNullOrWhiteSpace(title) ? "Change request" : title,
                 DaysImpact = daysImpact,
                 CostImpact = costImpact,
-                Approved   = true,
+                Approved = true,
                 ApprovedOn = DateTime.UtcNow
             });
 
@@ -97,6 +166,7 @@ namespace YachtCRM.Web.Controllers
         }
     }
 }
+
 
 
 

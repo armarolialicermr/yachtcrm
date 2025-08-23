@@ -1,0 +1,48 @@
+@model IEnumerable<YachtCRM.Domain.ChangeRequest>
+@{
+  ViewData["Title"] = "Change Requests";
+}
+<h2 class="mb-3">Change Requests</h2>
+
+@if (TempData["Flash"] is string msg) { <div class="alert alert-success">@msg</div> }
+
+<p>
+  <a class="btn btn-success" asp-action="Create" asp-route-projectId="@ViewBag.ProjectId">+ New Change Request</a>
+</p>
+
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th style="width:80px;">ID</th>
+      <th>Project</th>
+      <th>Customer</th>
+      <th>Title</th>
+      <th class="text-end" style="width:120px;">Days +</th>
+      <th class="text-end" style="width:140px;">Cost +</th>
+      <th style="width:120px;">Approved</th>
+      <th style="width:160px;">Approved On</th>
+      <th style="width:150px;"></th>
+    </tr>
+  </thead>
+  <tbody>
+  @foreach (var c in Model)
+  {
+    <tr>
+      <td>@c.ChangeRequestID</td>
+      <td>@c.Project?.Name</td>
+      <td>@c.Project?.Customer?.Name</td>
+      <td class="text-truncate" style="max-width:300px;">@c.Title</td>
+      <td class="text-end">@c.DaysImpact</td>
+      <td class="text-end">@((c.CostImpact ?? 0).ToString("C"))</td>
+      <td>
+        @if (c.Approved) { <span class="badge bg-success">Yes</span> } else { <span class="badge bg-secondary">No</span> }
+      </td>
+      <td>@(c.ApprovedOn?.ToLocalTime().ToString("g") ?? "-")</td>
+      <td>
+        <a class="btn btn-sm btn-primary" asp-action="Details" asp-route-id="@c.ChangeRequestID">Details</a>
+        <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@c.ChangeRequestID">Edit</a>
+      </td>
+    </tr>
+  }
+  </tbody>
+</table>

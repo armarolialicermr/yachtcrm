@@ -1,0 +1,21 @@
+@model YachtCRM.Domain.ChangeRequest
+@{
+  ViewData["Title"] = "Change Request Details";
+}
+@if (TempData["Flash"] is string msg) { <div class="alert alert-success">@msg</div> }
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h3 class="card-title">@Model.Title</h3>
+    <p class="text-muted mb-2">Project: <strong>@Model.Project?.Name</strong> — Customer: <strong>@Model.Project?.Customer?.Name</strong></p>
+    <dl class="row">
+      <dt class="col-sm-3">Days Impact</dt><dd class="col-sm-9">@Model.DaysImpact</dd>
+      <dt class="col-sm-3">Cost Impact</dt><dd class="col-sm-9">@Model.CostImpact?.ToString("C")</dd>
+      <dt class="col-sm-3">Approved</dt><dd class="col-sm-9">@((Model.Approved) ? "Yes" : "No")</dd>
+      <dt class="col-sm-3">Approved On</dt><dd class="col-sm-9">@Model.ApprovedOn?.ToLocalTime().ToString("g")</dd>
+    </dl>
+    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.ChangeRequestID">Edit</a>
+    <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@Model.ChangeRequestID">Delete</a>
+    <a class="btn btn-outline-secondary" asp-action="Index" asp-route-projectId="@Model.ProjectID">Back</a>
+  </div>
+</div>

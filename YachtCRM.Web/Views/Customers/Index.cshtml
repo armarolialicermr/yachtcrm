@@ -1,0 +1,49 @@
+@model IEnumerable<YachtCRM.Domain.Customer>
+@{
+    ViewData["Title"] = "Customers";
+}
+<h2 class="mb-3">Customers</h2>
+
+<p><a class="btn btn-success" asp-action="Create">+ New Customer</a></p>
+
+@if (TempData["Flash"] is string msg)
+{
+  <div class="alert alert-success">@msg</div>
+}
+
+@if (!Model.Any())
+{
+  <div class="alert alert-info">No customers yet.</div>
+}
+else {
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th style="width:80px;">ID</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Country</th>
+      <th style="width:120px;">Projects</th>
+      <th style="width:120px;"></th>
+    </tr>
+  </thead>
+  <tbody>
+  @foreach (var c in Model)
+  {
+    <tr>
+      <td>@c.CustomerID</td>
+      <td>@c.Name</td>
+      <td>@c.Email</td>
+      <td>@c.Phone</td>
+      <td>@c.Country</td>
+      <td>@c.Projects.Count</td>
+      <td>
+        <a class="btn btn-sm btn-primary" asp-action="Details" asp-route-id="@c.CustomerID">Details</a>
+      </td>
+    </tr>
+  }
+  </tbody>
+</table>
+}
+
