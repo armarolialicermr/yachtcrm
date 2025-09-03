@@ -1,0 +1,9 @@
+**/bin
+**/obj
+out
+.git
+.vscode
+*.db
+*.sqlite
+*.mdf
+*.user
