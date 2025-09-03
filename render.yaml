@@ -1,18 +1,14 @@
 services:
   - type: web
     name: yachtcrm
-    env: docker
+    runtime: docker     # use the Dockerfile in repo root
     plan: free
-    repo: https://github.com/armarolialicermr/yachtcrm
-    buildCommand: |
-      dotnet restore
-      dotnet publish YachtCRM.Web/YachtCRM.Web.csproj -c Release -o out
-    startCommand: |
-      cd out && ASPNETCORE_URLS=http://0.0.0.0:$PORT dotnet YachtCRM.Web.dll
     envVars:
-      - key: ConnectionStrings__DefaultConnection
-        value: Data Source=app.db
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
+      - key: ASPNETCORE_URLS
+        value: http://0.0.0.0:$PORT
+      - key: ConnectionStrings__DefaultConnection
+        value: Data Source=app.db
       - key: SEED_ON_BOOT
         value: "500"
