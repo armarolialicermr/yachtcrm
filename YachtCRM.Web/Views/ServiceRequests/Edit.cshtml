@@ -1,0 +1,41 @@
+@model YachtCRM.Domain.ServiceRequest
+@{
+    ViewData["Title"] = "Edit Service Request";
+}
+<h3>Edit Service Request #@Model.ServiceRequestID</h3>
+<form asp-action="Edit" method="post" class="row g-3">
+  @Html.AntiForgeryToken()
+  <input type="hidden" asp-for="ServiceRequestID" />
+  <div class="col-md-6">
+    <label class="form-label">Project</label>
+    <select asp-for="ProjectID" asp-items="ViewBag.Projects" class="form-select"></select>
+  </div>
+  <div class="col-md-6">
+    <label class="form-label">Title</label>
+    <input asp-for="Title" class="form-control" />
+  </div>
+  <div class="col-md-4">
+    <label class="form-label">Type</label>
+    <input asp-for="Type" class="form-control" />
+  </div>
+  <div class="col-md-4">
+    <label class="form-label">Status</label>
+    <input asp-for="Status" class="form-control" />
+  </div>
+  <div class="col-md-4">
+    <label class="form-label">Request Date (UTC)</label>
+    <input asp-for="RequestDate" type="datetime-local" class="form-control" />
+  </div>
+  <div class="col-md-4">
+    <label class="form-label">Completed On (UTC)</label>
+    <input asp-for="CompletedOn" type="datetime-local" class="form-control" />
+  </div>
+  <div class="col-12">
+    <label class="form-label">Description</label>
+    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+  </div>
+  <div class="col-12">
+    <button class="btn btn-primary">Save</button>
+    <a asp-action="Details" asp-route-id="@Model.ServiceRequestID" class="btn btn-outline-secondary">Cancel</a>
+  </div>
+</form>

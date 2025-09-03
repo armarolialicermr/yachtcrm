@@ -1,4 +1,5 @@
 /Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/bin/Debug/net8.0/YachtCRM.Infrastructure.deps.json
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/bin/Debug/net8.0/YachtCRM.Infrastructure.runtimeconfig.json
 /Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/bin/Debug/net8.0/YachtCRM.Infrastructure.dll
 /Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/bin/Debug/net8.0/YachtCRM.Infrastructure.pdb
 /Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/bin/Debug/net8.0/YachtCRM.Application.dll
@@ -14,4 +15,5 @@
 /Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/obj/Debug/net8.0/YachtCRM.Infrastructure.dll
 /Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/obj/Debug/net8.0/refint/YachtCRM.Infrastructure.dll
 /Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/obj/Debug/net8.0/YachtCRM.Infrastructure.pdb
+/Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/obj/Debug/net8.0/YachtCRM.Infrastructure.genruntimeconfig.cache
 /Users/alicearmaroli/Downloads/YachtCRM/YachtCRM.Infrastructure/obj/Debug/net8.0/ref/YachtCRM.Infrastructure.dll

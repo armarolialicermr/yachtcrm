@@ -1,0 +1,48 @@
+@model IEnumerable<YachtCRM.Domain.ServiceRequest>
+@{
+    ViewData["Title"] = "Service Requests";
+}
+<h2>Service Requests</h2>
+
+<form method="get" class="row g-2 mb-3">
+  <div class="col-auto">
+    <input class="form-control" name="projectId" value="@(ViewBag.ProjectId ?? "")" placeholder="Project ID" />
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-outline-primary">Filter</button>
+    <a asp-action="Index" class="btn btn-outline-secondary ms-2">Clear</a>
+  </div>
+</form>
+
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th>ID</th><th>Project</th><th>Title</th><th>Type</th><th>Status</th><th>Requested</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+  @foreach (var s in Model)
+  {
+    <tr>
+      <td>@s.ServiceRequestID</td>
+      <td>
+        @if (s.Project != null)
+        { <a asp-controller="Projects" asp-action="Details" asp-route-id="@s.ProjectID">@s.Project.Name</a> }
+        else { @s.ProjectID }
+      </td>
+      <td>@s.Title</td>
+      <td>@s.Type</td>
+      <td><span class="badge bg-secondary">@s.Status</span></td>
+      <td>@s.RequestDate.ToLocalTime()</td>
+      <td>
+        <a class="btn btn-sm btn-primary" asp-action="Details" asp-route-id="@s.ServiceRequestID">Open</a>
+      </td>
+    </tr>
+  }
+  </tbody>
+</table>
+
+<p>
+  <a class="btn btn-success" asp-action="Create">+ New Service Request</a>
+</p>
+

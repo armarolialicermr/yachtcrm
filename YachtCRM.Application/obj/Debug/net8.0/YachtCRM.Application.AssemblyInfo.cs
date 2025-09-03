@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("YachtCRM.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4de18ffccb67826d12a863f51d23828ad376b977")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d7d046d4c6b4b34379433c57e6ef16421d580378")]
 [assembly: System.Reflection.AssemblyProductAttribute("YachtCRM.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("YachtCRM.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -25,6 +25,8 @@ namespace YachtCRM.Web.ViewModels
         public string CrVsDelayLabelsJson { get; set; } = "[]";
         public string CrVsDelayXJson { get; set; } = "[]"; // ChangeRequests
         public string CrVsDelayYJson { get; set; } = "[]"; // PredictedDelay
+    public double? AvgFeedbackScore { get; set; }
+        public int OpenServiceRequests { get; set; }
     }
 
     public class OffenderRow
@@ -37,7 +39,7 @@ namespace YachtCRM.Web.ViewModels
         public int Tasks { get; set; }
         public float Length { get; set; }
     }
-    
+
     public class StatusCount
     {
         public string Status { get; set; } = "Unknown";

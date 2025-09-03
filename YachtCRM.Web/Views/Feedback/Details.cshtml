@@ -1,0 +1,35 @@
+@model YachtCRM.Domain.CustomerFeedback
+@{
+    ViewData["Title"] = "Feedback Details";
+}
+<h3>Feedback #@Model.CustomerFeedbackID</h3>
+<dl class="row">
+  <dt class="col-sm-3">Customer</dt>
+  <dd class="col-sm-9">@Model.Customer?.Name (@Model.CustomerID)</dd>
+
+  <dt class="col-sm-3">Project</dt>
+  <dd class="col-sm-9">
+    @if (Model.Project != null)
+    {
+      <a asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectID">
+        @Model.Project.Name
+      </a>
+    }
+    else { @Model.ProjectID }
+  </dd>
+
+  <dt class="col-sm-3">Score</dt>
+  <dd class="col-sm-9">@Model.Score</dd>
+
+  <dt class="col-sm-3">Submitted</dt>
+  <dd class="col-sm-9">@Model.SubmittedOn.ToLocalTime()</dd>
+
+  <dt class="col-sm-3">Comments</dt>
+  <dd class="col-sm-9">@Model.Comments</dd>
+</dl>
+<p>
+  <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.CustomerFeedbackID">Edit</a>
+  <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@Model.CustomerFeedbackID">Delete</a>
+  <a class="btn btn-outline-secondary" asp-action="Index">Back</a>
+</p>
+

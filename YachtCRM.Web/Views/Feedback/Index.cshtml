@@ -1,0 +1,41 @@
+@model IEnumerable<YachtCRM.Domain.CustomerFeedback>
+@{
+    ViewData["Title"] = "Customer Feedback";
+}
+<h2>Customer Feedback</h2>
+
+<form method="get" class="row g-2 mb-3">
+  <div class="col-auto"><input class="form-control" name="projectId" value="@(ViewBag.ProjectId ?? "")" placeholder="Project ID" /></div>
+  <div class="col-auto"><input class="form-control" name="customerId" value="@(ViewBag.CustomerId ?? "")" placeholder="Customer ID" /></div>
+  <div class="col-auto">
+    <button class="btn btn-outline-primary">Filter</button>
+    <a asp-action="Index" class="btn btn-outline-secondary ms-2">Clear</a>
+  </div>
+</form>
+
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th>ID</th><th>Customer</th><th>Project</th><th>Score</th><th>Submitted</th><th>Comments</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+  @foreach (var f in Model)
+  {
+    <tr>
+      <td>@f.CustomerFeedbackID</td>
+      <td>@(f.Customer?.Name ?? f.CustomerID.ToString())</td>
+      <td>@(f.Project?.Name ?? f.ProjectID?.ToString())</td>
+      <td>
+        <span class="badge @(f.Score>=9 ? "bg-success" : f.Score>=7 ? "bg-warning" : "bg-danger")">@f.Score</span>
+      </td>
+      <td>@f.SubmittedOn.ToLocalTime()</td>
+      <td class="text-truncate" style="max-width:360px;">@f.Comments</td>
+      <td><a class="btn btn-sm btn-primary" asp-action="Details" asp-route-id="@f.CustomerFeedbackID">Open</a></td>
+    </tr>
+  }
+  </tbody>
+</table>
+
+<p><a class="btn btn-success" asp-action="Create">+ New Feedback</a></p>
+

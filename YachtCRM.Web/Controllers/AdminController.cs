@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 // using Microsoft.AspNetCore.Authorization; // uncomment if you add [Authorize]
 using YachtCRM.Infrastructure;
 using YachtCRM.Web.Seed;
+using YachtCRM.Infrastructure.Services;
+
 
 namespace YachtCRM.Web.Controllers
 {
@@ -20,6 +22,17 @@ namespace YachtCRM.Web.Controllers
             TempData["Flash"] = $"Seeded {count} synthetic projects.";
             return RedirectToAction("Index", "Home");
         }
+        // POST /admin/train/delayrf
+        [HttpPost("/admin/train/delayrf")]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> TrainDelayRf([FromServices] MlDelayPredictionService trainer)
+{
+    var count = await trainer.TrainAsync();
+    TempData["Flash"] = $"Trained delay model on {count} projects.";
+    return RedirectToAction("Index", "Home");
+}
+
+
     }
 }
 

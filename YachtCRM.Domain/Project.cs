@@ -25,12 +25,14 @@ namespace YachtCRM.Domain
 
         public Customer Customer { get; set; } = default!;
         public YachtModel YachtModel { get; set; } = default!;
-
+        public int? YardID { get; set; }       // nullable for smooth migration
+        public Yard? Yard { get; set; }
         public ICollection<CrmTask> Tasks { get; set; } = new List<CrmTask>();
         public ICollection<Interaction> Interactions { get; set; } = new List<Interaction>();
         public ICollection<ProjectMilestone> Milestones { get; set; } = new List<ProjectMilestone>();
         public ICollection<ChangeRequest> ChangeRequests { get; set; } = new List<ChangeRequest>();
         public ICollection<ServiceTask> ServiceTasks { get; set; } = new List<ServiceTask>();
         public ICollection<Document> Documents { get; set; } = new List<Document>();
+        public ICollection<ServiceRequest> ServiceRequests { get; set; } = new List<ServiceRequest>();
     }
 }

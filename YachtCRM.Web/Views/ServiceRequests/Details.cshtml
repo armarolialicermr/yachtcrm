@@ -1,0 +1,24 @@
+@model YachtCRM.Domain.ServiceRequest
+@{
+    ViewData["Title"] = "Service Request";
+}
+<h3>Service Request #@Model.ServiceRequestID</h3>
+<dl class="row">
+  <dt class="col-sm-3">Project</dt>
+  <dd class="col-sm-9">
+    @if (Model.Project != null)
+    { <a asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectID">@Model.Project.Name</a> }
+    else { @Model.ProjectID }
+  </dd>
+  <dt class="col-sm-3">Title</dt><dd class="col-sm-9">@Model.Title</dd>
+  <dt class="col-sm-3">Type</dt><dd class="col-sm-9">@Model.Type</dd>
+  <dt class="col-sm-3">Status</dt><dd class="col-sm-9">@Model.Status</dd>
+  <dt class="col-sm-3">Requested</dt><dd class="col-sm-9">@Model.RequestDate.ToLocalTime()</dd>
+  <dt class="col-sm-3">Completed</dt><dd class="col-sm-9">@Model.CompletedOn?.ToLocalTime() ?? "-"</dd>
+  <dt class="col-sm-3">Description</dt><dd class="col-sm-9">@Model.Description</dd>
+</dl>
+<p>
+  <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.ServiceRequestID">Edit</a>
+  <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@Model.ServiceRequestID">Delete</a>
+  <a class="btn btn-outline-secondary" asp-action="Index">Back</a>
+</p>

@@ -349,6 +349,38 @@ namespace YachtCRM.Infrastructure.Migrations
                     b.ToTable("CustomerBrokers");
                 });
 
+            modelBuilder.Entity("YachtCRM.Domain.CustomerFeedback", b =>
+                {
+                    b.Property<int>("CustomerFeedbackID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Comments")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CustomerID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ProjectID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("SubmittedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("CustomerFeedbackID");
+
+                    b.HasIndex("ProjectID");
+
+                    b.HasIndex("CustomerID", "ProjectID");
+
+                    b.ToTable("CustomerFeedbacks");
+                });
+
             modelBuilder.Entity("YachtCRM.Domain.Document", b =>
                 {
                     b.Property<int>("DocumentID")
@@ -451,11 +483,16 @@ namespace YachtCRM.Infrastructure.Migrations
                     b.Property<int>("YachtModelID")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("YardID")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("ProjectID");
 
                     b.HasIndex("CustomerID");
 
                     b.HasIndex("YachtModelID");
+
+                    b.HasIndex("YardID");
 
                     b.ToTable("Projects");
                 });
@@ -488,6 +525,51 @@ namespace YachtCRM.Infrastructure.Migrations
                     b.HasIndex("ProjectID");
 
                     b.ToTable("ProjectMilestones");
+                });
+
+            modelBuilder.Entity("YachtCRM.Domain.ServiceRequest", b =>
+                {
+                    b.Property<int>("ServiceRequestID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("CompletedOn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProjectID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("RequestDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("Open");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("Maintenance");
+
+                    b.HasKey("ServiceRequestID");
+
+                    b.HasIndex("ProjectID", "Status");
+
+                    b.ToTable("ServiceRequests");
                 });
 
             modelBuilder.Entity("YachtCRM.Domain.ServiceTask", b =>
@@ -606,6 +688,79 @@ namespace YachtCRM.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("YachtCRM.Domain.Yard", b =>
+                {
+                    b.Property<int>("YardID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("YardID");
+
+                    b.HasIndex("Name", "Brand")
+                        .IsUnique();
+
+                    b.ToTable("Yards");
+
+                    b.HasData(
+                        new
+                        {
+                            YardID = 1,
+                            Brand = "Cantieri Demo",
+                            Country = "Italy",
+                            Name = "Cantieri Demo S.p.A."
+                        },
+                        new
+                        {
+                            YardID = 2,
+                            Brand = "Ferretti",
+                            Country = "Italy",
+                            Name = "Ferretti Group"
+                        },
+                        new
+                        {
+                            YardID = 3,
+                            Brand = "Azimut",
+                            Country = "Italy",
+                            Name = "Azimut|Benetti"
+                        },
+                        new
+                        {
+                            YardID = 4,
+                            Brand = "Sanlorenzo",
+                            Country = "Italy",
+                            Name = "Sanlorenzo"
+                        },
+                        new
+                        {
+                            YardID = 5,
+                            Brand = "Feadship",
+                            Country = "Netherlands",
+                            Name = "Feadship"
+                        },
+                        new
+                        {
+                            YardID = 6,
+                            Brand = "Lürssen",
+                            Country = "Germany",
+                            Name = "Lürssen"
+                        });
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -704,6 +859,24 @@ namespace YachtCRM.Infrastructure.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("YachtCRM.Domain.CustomerFeedback", b =>
+                {
+                    b.HasOne("YachtCRM.Domain.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("YachtCRM.Domain.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectID")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("YachtCRM.Domain.Document", b =>
                 {
                     b.HasOne("YachtCRM.Domain.Customer", "Customer")
@@ -751,15 +924,33 @@ namespace YachtCRM.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("YachtCRM.Domain.Yard", "Yard")
+                        .WithMany("Projects")
+                        .HasForeignKey("YardID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Customer");
 
                     b.Navigation("YachtModel");
+
+                    b.Navigation("Yard");
                 });
 
             modelBuilder.Entity("YachtCRM.Domain.ProjectMilestone", b =>
                 {
                     b.HasOne("YachtCRM.Domain.Project", "Project")
                         .WithMany("Milestones")
+                        .HasForeignKey("ProjectID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("YachtCRM.Domain.ServiceRequest", b =>
+                {
+                    b.HasOne("YachtCRM.Domain.Project", "Project")
+                        .WithMany("ServiceRequests")
                         .HasForeignKey("ProjectID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -815,12 +1006,19 @@ namespace YachtCRM.Infrastructure.Migrations
 
                     b.Navigation("Milestones");
 
+                    b.Navigation("ServiceRequests");
+
                     b.Navigation("ServiceTasks");
 
                     b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("YachtCRM.Domain.YachtModel", b =>
+                {
+                    b.Navigation("Projects");
+                });
+
+            modelBuilder.Entity("YachtCRM.Domain.Yard", b =>
                 {
                     b.Navigation("Projects");
                 });

@@ -11,33 +11,56 @@
   </div>
 }
 
-<div class="row g-3 mb-3">
-  <div class="col-md-3">
-    <div class="card shadow-sm"><div class="card-body">
-      <div class="text-muted">Projects</div>
-      <div class="h3 mb-0">@Model.TotalProjects</div>
-    </div></div>
+<!-- ========= KPI CARDS ========= -->
+<div class="container-fluid px-0">
+  <!-- Row 1 (4 KPIs) -->
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3 mb-3">
+    <div class="col">
+      <div class="card h-100 shadow-sm"><div class="card-body">
+        <div class="text-muted">Projects</div>
+        <div class="h3 mb-0">@Model.TotalProjects</div>
+      </div></div>
+    </div>
+    <div class="col">
+      <div class="card h-100 shadow-sm"><div class="card-body">
+        <div class="text-muted">Customers</div>
+        <div class="h3 mb-0">@Model.TotalCustomers</div>
+      </div></div>
+    </div>
+    <div class="col">
+      <div class="card h-100 shadow-sm"><div class="card-body">
+        <div class="text-muted">Change Requests</div>
+        <div class="h3 mb-0">@Model.TotalChangeRequests</div>
+      </div></div>
+    </div>
+    <div class="col">
+      <div class="card h-100 shadow-sm"><div class="card-body">
+        <div class="text-muted">Interactions</div>
+        <div class="h3 mb-0">@Model.TotalInteractions</div>
+      </div></div>
+    </div>
   </div>
-  <div class="col-md-3">
-    <div class="card shadow-sm"><div class="card-body">
-      <div class="text-muted">Customers</div>
-      <div class="h3 mb-0">@Model.TotalCustomers</div>
-    </div></div>
-  </div>
-  <div class="col-md-3">
-    <div class="card shadow-sm"><div class="card-body">
-      <div class="text-muted">Change Requests</div>
-      <div class="h3 mb-0">@Model.TotalChangeRequests</div>
-    </div></div>
-  </div>
-  <div class="col-md-3">
-    <div class="card shadow-sm"><div class="card-body">
-      <div class="text-muted">Interactions</div>
-      <div class="h3 mb-0">@Model.TotalInteractions</div>
-    </div></div>
+
+  <!-- Row 2 (extra KPIs) -->
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3 mb-3">
+    <div class="col">
+      <div class="card h-100 shadow-sm"><div class="card-body">
+        <div class="text-muted">Avg Feedback Score</div>
+        <div class="h3 mb-0">
+          @(Model.AvgFeedbackScore.HasValue ? Model.AvgFeedbackScore.Value.ToString("0.0") : "–")
+        </div>
+      </div></div>
+    </div>
+    <div class="col">
+      <div class="card h-100 shadow-sm"><div class="card-body">
+        <div class="text-muted">Open Service Requests</div>
+        <div class="h3 mb-0">@Model.OpenServiceRequests</div>
+      </div></div>
+    </div>
   </div>
 </div>
 
+<!-- ========= ACTIONS ========= -->
 <div class="mb-3 d-flex align-items-center flex-wrap gap-2">
   <a class="btn btn-primary" asp-controller="Projects" asp-action="Index">View Projects</a>
   <a class="btn btn-outline-secondary" href="/analytics/export/projects.csv">Export CSV</a>
@@ -57,7 +80,7 @@
   </form>
 </div>
 
-<!-- Key Stats row (auto-computed client-side) -->
+<!-- ========= KEY STATS (auto) ========= -->
 <div class="row g-3 mb-3" id="statsRow" style="display:none;">
   <div class="col-md-2">
     <div class="card shadow-sm"><div class="card-body">
@@ -97,6 +120,7 @@
   </div>
 </div>
 
+<!-- ========= CHARTS (3-up) ========= -->
 <div class="row g-4">
   <div class="col-lg-4">
     <div class="card shadow-sm h-100">
@@ -108,7 +132,7 @@
             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalStatus">Expand</button>
           </div>
         </div>
-        <canvas id="statusChart" class="mt-2"></canvas>
+        <div class="ratio ratio-4x3 mt-2"><canvas id="statusChart"></canvas></div>
       </div>
     </div>
   </div>
@@ -122,7 +146,7 @@
             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalTL">Expand</button>
           </div>
         </div>
-        <canvas id="tasksLengthChart" class="mt-2"></canvas>
+        <div class="ratio ratio-4x3 mt-2"><canvas id="tasksLengthChart"></canvas></div>
       </div>
     </div>
   </div>
@@ -136,18 +160,18 @@
             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalCR">Expand</button>
           </div>
         </div>
-        <canvas id="crDelayChart" class="mt-2"></canvas>
+        <div class="ratio ratio-4x3 mt-2"><canvas id="crDelayChart"></canvas></div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- ========= TOP PREDICTED DELAYS ========= -->
 <div class="row g-4 mt-1">
   <div class="col-12">
     <div class="card shadow-sm">
       <div class="card-body">
         <h5 class="card-title">Top Predicted Delays</h5>
-
         @if (Model.TopPredictedDelays == null || !Model.TopPredictedDelays.Any())
         {
           <p class="text-muted mb-0">No projects to rank yet.</p>
@@ -200,7 +224,94 @@
   </div>
 </div>
 
-<!-- ===== Modals for full-screen charts ===== -->
+<!-- ========= ML DIAGNOSTICS (CV + FI) ========= -->
+<div class="row g-3 mb-3">
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">ML Cross-Validation</h5>
+          <button class="btn btn-sm btn-outline-primary" id="btnRefreshCv">Refresh</button>
+        </div>
+        <div id="cvSummary" class="mt-2 small text-muted">Loading…</div>
+        <div class="table-responsive mt-2">
+          <table class="table table-sm" id="cvTable" style="display:none;">
+            <thead><tr><th>Fold</th><th>MAE</th><th>RMSE</th><th>R²</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Feature Importance (SDCA)</h5>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-outline-secondary" id="btnDlFI">Download PNG</button>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalFI">Expand</button>
+          </div>
+        </div>
+        <div class="ratio ratio-4x3 mt-2"><canvas id="fiChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========= ADVANCED INSIGHTS (K-Means + RF FI + High-Risk) ========= -->
+<div class="row g-3 mb-3">
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Project Risk Clusters</h5>
+          <button class="btn btn-sm btn-outline-secondary" id="btnDlClusters">Download PNG</button>
+        </div>
+        <div class="ratio ratio-4x3 mt-2"><canvas id="clusterChart"></canvas></div>
+        <div class="small text-muted mt-2">K-means over (Change Requests, Predicted Delay). Colors ≈ risk tiers.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Feature Importance (RF)</h5>
+          <button class="btn btn-sm btn-outline-secondary" id="btnDlFIRf">Download PNG</button>
+        </div>
+        <div class="ratio ratio-4x3 mt-2"><canvas id="fiChartRf"></canvas></div>
+        <div class="small text-muted mt-2">Random-Forest (Gini) importance served by <code>/ml/feature-importance</code>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h5 class="card-title mb-3">High-Risk Projects</h5>
+    <ul id="highRiskList" class="list-group small"></ul>
+  </div>
+</div>
+
+<!-- Feature Importance fullscreen modal -->
+<div class="modal fade" id="modalFI" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Feature Importance</h5>
+        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3">
+        <canvas id="fiChartModal"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========= MODALS (full-screen charts) ========= -->
 <div class="modal fade" id="modalStatus" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-fullscreen">
     <div class="modal-content">
@@ -248,54 +359,7 @@
 
 @section Scripts {
 <script>
-// =============== Helpers ===============
-function linReg(points) {
-  const n = points.length;
-  if (n < 2) return null;
-  let sumX=0, sumY=0, sumXY=0, sumX2=0, sumY2=0;
-  for (const p of points) { sumX+=p.x; sumY+=p.y; sumXY+=p.x*p.y; sumX2+=p.x*p.x; sumY2+=p.y*p.y; }
-  const denom = (n*sumX2 - sumX*sumX);
-  if (denom === 0) return null;
-  const a = (n*sumXY - sumX*sumY) / denom;
-  const b = (sumY - a*sumX) / n;
-  const meanY = sumY / n;
-  let ssTot = 0, ssRes = 0;
-  for (const p of points) {
-    const yhat = a*p.x + b;
-    ssTot += (p.y - meanY)**2;
-    ssRes += (p.y - yhat)**2;
-  }
-  const r2 = ssTot === 0 ? 1 : 1 - (ssRes/ssTot);
-  const xs = points.map(p => p.x);
-  const minX = Math.min(...xs);
-  const maxX = Math.max(...xs);
-  return { a, b, r2, minX, maxX };
-}
-function pearsonR(points) {
-  const n = points.length; if (n < 2) return null;
-  let sx=0, sy=0, sxx=0, syy=0, sxy=0;
-  for (const p of points) { sx+=p.x; sy+=p.y; sxx+=p.x*p.x; syy+=p.y*p.y; sxy+=p.x*p.y; }
-  const cov = (sxy - sx*sy/n);
-  const vx = (sxx - sx*sx/n);
-  const vy = (syy - sy*sy/n);
-  if (vx <= 0 || vy <= 0) return null;
-  return cov / Math.sqrt(vx*vy);
-}
-function trendlineDataset(fit, label = "Trendline") {
-  if (!fit) return null;
-  return {
-    label,
-    type: 'line',
-    data: [
-      { x: fit.minX, y: fit.a*fit.minX + fit.b },
-      { x: fit.maxX, y: fit.a*fit.maxX + fit.b }
-    ],
-    parsing: false,
-    pointRadius: 0,
-    borderWidth: 2,
-    borderDash: [6,4]
-  };
-}
+// =============== Small helpers ===============
 function downloadChartPNG(chart, filename) {
   const a = document.createElement('a');
   a.href = chart.toBase64Image('image/png', 1.0);
@@ -317,6 +381,46 @@ function percentile(arr, p){
   if (lo===hi) return s[lo];
   const w = idx - lo;
   return s[lo]*(1-w) + s[hi]*w;
+}
+function linReg(points) {
+  const n = points.length; if (n < 2) return null;
+  let sumX=0,sumY=0,sumXY=0,sumX2=0,sumY2=0;
+  for (const p of points){ sumX+=p.x; sumY+=p.y; sumXY+=p.x*p.y; sumX2+=p.x*p.x; sumY2+=p.y*p.y; }
+  const denom = (n*sumX2 - sumX*sumX);
+  if (denom===0) return null;
+  const a = (n*sumXY - sumX*sumY)/denom;
+  const b = (sumY - a*sumX)/n;
+  const meanY = sumY/n;
+  let ssTot = 0, ssRes = 0;
+  for(const p of points){
+    const yhat = a*p.x + b;
+    ssTot += (p.y-meanY)**2;
+    ssRes += (p.y-yhat)**2;
+  }
+  const r2 = ssTot===0 ? 1 : 1-(ssRes/ssTot);
+  const xs = points.map(p=>p.x);
+  return { a,b,r2,minX:Math.min(...xs),maxX:Math.max(...xs) };
+}
+function pearsonR(points) {
+  const n = points.length; if (n < 2) return null;
+  let sx=0,sy=0,sxx=0,syy=0,sxy=0;
+  for(const p of points){ sx+=p.x; sy+=p.y; sxx+=p.x*p.x; syy+=p.y*p.y; sxy+=p.x*p.y; }
+  const cov = (sxy - sx*sy/n);
+  const vx = (sxx - sx*sx/n);
+  const vy = (syy - sy*sy/n);
+  if (vx<=0 || vy<=0) return null;
+  return cov / Math.sqrt(vx*vy);
+}
+function trendlineDataset(fit, label = "Trendline") {
+  if (!fit) return null;
+  return {
+    label, type: 'line',
+    data: [
+      { x: fit.minX, y: fit.a*fit.minX + fit.b },
+      { x: fit.maxX, y: fit.a*fit.maxX + fit.b }
+    ],
+    parsing: false, pointRadius: 0, borderWidth: 2, borderDash: [6,4]
+  };
 }
 
 // -------- Data from server --------
@@ -423,99 +527,281 @@ crCtx.onclick = (evt) => {
   document.getElementById('statRTasksLen').innerText = (rTL==null) ? '–' : `${rTL.toFixed(2)} (R² ${(rTL*rTL).toFixed(2)})`;
   document.getElementById('statRCRDelay').innerText = (rCR==null) ? '–' : `${rCR.toFixed(2)} (R² ${(rCR*rCR).toFixed(2)})`;
 
-  // Finally reveal the stats row
   document.getElementById('statsRow').style.display = 'flex';
 })();
-/* ---------- Modal chart helpers ---------- */
 
-// Give modal canvases a real height so Chart.js can layout.
-(function ensureModalCanvasStyle(){
-  const style = document.createElement('style');
-  style.innerHTML = `
-    .modal-body canvas { width: 100% !important; height: 80vh !important; }
-  `;
-  document.head.appendChild(style);
-})();
-
-// Deep-clone a plain object (Chart config/data)
-function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
-
-// Build a modal chart from a base config (reuse data + options, but disable aspect ratio)
-function buildModalConfig(baseConfig, titleSuffix){
-  const cfg = {
-    type: baseConfig.type,
-    data: deepClone(baseConfig.data),
-    options: deepClone(baseConfig.options || {})
-  };
-  // Make it fill modal height and recompute layout
-  cfg.options.maintainAspectRatio = false;
-  cfg.options.responsive = true;
-
-  // If we had a title, append suffix so it's clear in full-screen
-  if (cfg.options.plugins && cfg.options.plugins.title && cfg.options.plugins.title.text) {
-    const t = cfg.options.plugins.title.text;
-    cfg.options.plugins.title.text = Array.isArray(t) ? [...t, titleSuffix] : `${t} ${titleSuffix}`;
-  }
-  return cfg;
-}
-
-// Keep refs so we don't create duplicates
+// ===== MODALS: rebuild charts at full screen =====
 let statusModalChart = null;
 let tlModalChart = null;
 let crModalChart = null;
 
-// ----- 1) Status modal -----
 const statusModalEl = document.getElementById('modalStatus');
-statusModalEl.addEventListener('shown.bs.modal', function () {
-  const cvs = document.getElementById('statusChartModal');
-  if (statusModalChart) { statusModalChart.destroy(); }
-  const cfg = buildModalConfig(statusChart.config, '(Expanded)');
-  statusModalChart = new Chart(cvs, cfg);
+statusModalEl.addEventListener('shown.bs.modal', () => {
+  const cvs = document.getElementById('statusChartModal').getContext('2d');
+  if (statusModalChart) statusModalChart.destroy();
+  statusModalChart = new Chart(cvs, {
+    type: 'doughnut',
+    data: { labels: statusLabels, datasets: [{ data: statusData }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
   statusModalChart.resize();
 });
-statusModalEl.addEventListener('hidden.bs.modal', function () {
+statusModalEl.addEventListener('hidden.bs.modal', () => {
   if (statusModalChart) { statusModalChart.destroy(); statusModalChart = null; }
 });
 document.getElementById('btnDlStatusModal').onclick = () => {
   if (statusModalChart) downloadChartPNG(statusModalChart, 'projects-by-status_large.png');
 };
 
-// ----- 2) Tasks vs Length modal -----
 const tlModalEl = document.getElementById('modalTL');
-tlModalEl.addEventListener('shown.bs.modal', function () {
-  const cvs = document.getElementById('tasksLengthChartModal');
-  if (tlModalChart) { tlModalChart.destroy(); }
-  const cfg = buildModalConfig(tlChart.config, '(Expanded)');
-  // Recompute trendline at this size (optional; data already has it)
-  tlModalChart = new Chart(cvs, cfg);
+tlModalEl.addEventListener('shown.bs.modal', () => {
+  const cvs = document.getElementById('tasksLengthChartModal').getContext('2d');
+  if (tlModalChart) tlModalChart.destroy();
+
+  const fit = linReg(tvlPoints.map(p => ({x:+p.x, y:+p.y})));
+  const trend = trendlineDataset(fit, "Trendline");
+  const datasets = [{ label: 'Projects', data: tvlPoints, parsing: false }];
+  if (trend) datasets.push(trend);
+
+  tlModalChart = new Chart(cvs, {
+    type: 'scatter',
+    data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false, parsing: false,
+      scales: { x: { title: { display:true, text:'Length (m)'} }, y: { title: { display:true, text:'# Tasks'} } },
+      plugins: {
+        title: { display: !!fit, text: fit ? `Tasks vs Length — R² = ${fit.r2.toFixed(3)}` : 'Tasks vs Length' },
+        tooltip: { filter: (ctx)=>ctx.dataset.type!=='line',
+          callbacks: { label: (ctx)=>`${ctx.raw.label}: L=${ctx.raw.x}, Tasks=${ctx.raw.y}` } }
+      }
+    }
+  });
   tlModalChart.resize();
 });
-tlModalEl.addEventListener('hidden.bs.modal', function () {
+tlModalEl.addEventListener('hidden.bs.modal', () => {
   if (tlModalChart) { tlModalChart.destroy(); tlModalChart = null; }
 });
 document.getElementById('btnDlTLModal').onclick = () => {
   if (tlModalChart) downloadChartPNG(tlModalChart, 'tasks-vs-length_large.png');
 };
 
-// ----- 3) CR vs Predicted Delay modal -----
 const crModalEl = document.getElementById('modalCR');
-crModalEl.addEventListener('shown.bs.modal', function () {
-  const cvs = document.getElementById('crDelayChartModal');
-  if (crModalChart) { crModalChart.destroy(); }
-  const cfg = buildModalConfig(crChart.config, '(Expanded)');
-  crModalChart = new Chart(cvs, cfg);
+crModalEl.addEventListener('shown.bs.modal', () => {
+  const cvs = document.getElementById('crDelayChartModal').getContext('2d');
+  if (crModalChart) crModalChart.destroy();
+
+  const fit = linReg(crdPoints.map(p => ({x:+p.x, y:+p.y})));
+  const trend = trendlineDataset(fit, "Trendline");
+  const datasets = [{ label: 'Projects', data: crdPoints, parsing: false }];
+  if (trend) datasets.push(trend);
+
+  crModalChart = new Chart(cvs, {
+    type: 'scatter',
+    data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false, parsing: false,
+      scales: { x: { title: { display:true, text:'Change Requests (count)'} }, y: { title: { display:true, text:'Predicted Delay (days)'} } },
+      plugins: {
+        title: { display: !!fit, text: fit ? `CR vs Predicted Delay — R² = ${fit.r2.toFixed(3)}` : 'CR vs Predicted Delay' },
+        tooltip: { filter: (ctx)=>ctx.dataset.type!=='line',
+          callbacks: { label: (ctx)=>`${ctx.raw.label}: CR=${ctx.raw.x}, Delay=${(+ctx.raw.y).toFixed(1)}d` } }
+      }
+    }
+  });
   crModalChart.resize();
 });
-crModalEl.addEventListener('hidden.bs.modal', function () {
+crModalEl.addEventListener('hidden.bs.modal', () => {
   if (crModalChart) { crModalChart.destroy(); crModalChart = null; }
 });
 document.getElementById('btnDlCRModal').onclick = () => {
   if (crModalChart) downloadChartPNG(crModalChart, 'cr-vs-predicted-delay_large.png');
 };
 
-</script>
+// Ensure modal canvases get height
+(function ensureModalCanvasStyle(){
+  const style = document.createElement('style');
+  style.innerHTML = `.modal-body canvas{width:100%!important;height:80vh!important;}`;
+  document.head.appendChild(style);
+})();
+
+// ---- ML CV Metrics ----
+async function loadCv(){
+  try{
+    const r = await fetch('/ml/metrics');
+    const d = await r.json();
+    const s = document.getElementById('cvSummary');
+    if (!d || !d.folds || d.trainingRows < 10){
+      s.innerText = 'Not enough data yet to compute CV (need ≥10 rows).';
+      document.getElementById('cvTable').style.display = 'none';
+      return;
+    }
+    s.innerText = `Rows: ${d.trainingRows} — MAE: ${d.meanMAE.toFixed(2)} days, RMSE: ${d.meanRMSE.toFixed(2)} days, R²: ${d.meanR2.toFixed(3)} (model: ${d.model})`;
+    const tbody = document.querySelector('#cvTable tbody');
+    tbody.innerHTML = '';
+    d.folds.forEach(f=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${f.fold}</td><td>${f.mae.toFixed(2)}</td><td>${f.rmse.toFixed(2)}</td><td>${f.r2.toFixed(3)}</td>`;
+      tbody.appendChild(tr);
+    });
+    document.getElementById('cvTable').style.display = '';
+  }catch(e){
+    document.getElementById('cvSummary').innerText = 'Failed to load CV metrics.';
+  }
+}
+document.getElementById('btnRefreshCv').onclick = loadCv;
+loadCv();
+
+// ---- Feature Importance (SDCA weights shown) ----
+let fiChart = null;
+let fiChartModal = null;
+let fiDataCache = null;
+
+function buildFiConfig(items, big=false){
+  return {
+    type: 'bar',
+    data: {
+      labels: items.map(x=>x.feature),
+      datasets: [{ label: '|Weight| (SDCA)', data: items.map(x=>x.weightAbs) }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: !big,
+      plugins: {
+        legend: { display: true },
+        title: { display: true, text: 'Feature Importance (weight magnitude)' },
+        tooltip: { callbacks: {
+          afterLabel: (ctx)=>{
+            const c = items[ctx.dataIndex].corrAbs;
+            return (c!=null) ? ` |corr| to label: ${c.toFixed(2)}` : '';
+          }
+        } }
+      },
+      scales: { x: { ticks: { autoSkip: false } } }
+    }
+  };
 }
 
+async function loadFi(){
+  if (fiDataCache) { renderFi(fiDataCache); return; }
+  try{
+    const r = await fetch('/ml/feature-importance');
+    const d = await r.json();
+    fiDataCache = d;
+    renderFi(d);
+  }catch(e){
+    // noop
+  }
+}
 
+function renderFi(d){
+  const items = (d && d.items && d.items.length) ? d.items.slice(0, 12) : [];
+  const ctx = document.getElementById('fiChart');
+  if (fiChart) fiChart.destroy();
+  fiChart = new Chart(ctx, buildFiConfig(items, false));
 
+  document.getElementById('btnDlFI').onclick = () => downloadChartPNG(fiChart, 'feature-importance.png');
+
+  // Modal
+  const modal = document.getElementById('modalFI');
+  modal.addEventListener('shown.bs.modal', ()=>{
+    const mctx = document.getElementById('fiChartModal');
+    if (fiChartModal) fiChartModal.destroy();
+    fiChartModal = new Chart(mctx, buildFiConfig(items, true));
+    fiChartModal.resize();
+  });
+  modal.addEventListener('hidden.bs.modal', ()=>{
+    if (fiChartModal) { fiChartModal.destroy(); fiChartModal = null; }
+  });
+}
+loadFi();
+
+// ---- K-means Clusters (CRs vs Predicted Delay) ----
+let clusterChartRef = null;
+async function loadClusters(){
+  try{
+    const r = await fetch('/ml/clusters');
+    const data = await r.json();
+    if(!data || !data.length) return;
+
+    const colors = ['#4caf50','#ff9800','#f44336']; // low, med, high risk
+    const clusters = [...new Set(data.map(p=>p.cluster))].sort((a,b)=>a-b);
+    const datasets = clusters.map((k, idx)=>({
+      label: `Cluster ${k}`,
+      data: data.filter(p=>p.cluster===k).map(p=>({x:p.crs, y:p.delay})),
+      backgroundColor: colors[idx % colors.length]
+    }));
+
+    const ctx = document.getElementById('clusterChart');
+    if (clusterChartRef) clusterChartRef.destroy();
+    clusterChartRef = new Chart(ctx, {
+      type: 'scatter',
+      data: { datasets },
+      options: {
+        plugins: { title: { display:true, text:'Project Risk Clusters (CRs vs Predicted Delay)' }, legend: { position:'bottom' } },
+        scales: { x:{ title:{display:true,text:'Change Requests'} }, y:{ title:{display:true,text:'Predicted Delay (days)'} } }
+      }
+    });
+
+    document.getElementById('btnDlClusters').onclick = () => downloadChartPNG(clusterChartRef, 'project-risk-clusters.png');
+  }catch(_){/*noop*/}
+}
+loadClusters();
+
+// ---- RF Feature Importance (Gini) ----
+let fiRfRef = null;
+async function loadFeatureImportanceRf(){
+  try{
+    const r = await fetch('/ml/feature-importance');
+    const d = await r.json();
+    // support both {items:[{feature,importance}]} and flat arrays
+    const items = d?.items?.length ? d.items : (Array.isArray(d) ? d : []);
+    const labels = items.map(x=>x.feature);
+    const values = items.map(x=>x.importance ?? x.weightAbs ?? 0);
+
+    const ctx = document.getElementById('fiChartRf');
+    if (fiRfRef) fiRfRef.destroy();
+    fiRfRef = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ label: 'Importance', data: values }] },
+      options: {
+        plugins: { title:{ display:true, text:'Feature Importance (Random Forest)' }, legend:{ display:false } },
+        scales: { x: { ticks: { autoSkip:false } } }
+      }
+    });
+
+    document.getElementById('btnDlFIRf').onclick = () => downloadChartPNG(fiRfRef, 'feature-importance-rf.png');
+  }catch(_){/*noop*/}
+}
+loadFeatureImportanceRf();
+
+// ---- High Risk Projects ----
+async function loadHighRisk(){
+  try{
+    const r = await fetch('/ml/high-risk-projects');
+    const data = await r.json();
+    const list = document.getElementById('highRiskList');
+    list.innerHTML = '';
+    if (!data || !data.length){
+      list.innerHTML = '<li class="list-group-item text-muted">No high-risk projects</li>';
+      return;
+    }
+    data
+      .sort((a,b)=> (b.predictedDelay - a.predictedDelay) || (b.changeRequests - a.changeRequests))
+      .slice(0, 12)
+      .forEach(p=>{
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.innerHTML = `<span class="text-truncate" style="max-width:70%;">${p.projectName} <span class="text-muted">(${p.customerName})</span></span>
+                        <span class="badge bg-danger">${p.predictedDelay.toFixed(1)}d / ${p.changeRequests} CRs</span>`;
+        li.onclick = ()=> window.location.href = '/Projects/Details/'+p.projectID;
+        list.appendChild(li);
+      });
+  }catch(_){
+    const list = document.getElementById('highRiskList');
+    list.innerHTML = '<li class="list-group-item text-muted">Unable to load high-risk list</li>';
+  }
+}
+loadHighRisk();
+</script>
+}
 

@@ -1,0 +1,16 @@
+@model YachtCRM.Domain.ServiceRequest
+@{
+    ViewData["Title"] = "Delete Service Request";
+}
+<h3>Delete Service Request #@Model.ServiceRequestID</h3>
+<div class="alert alert-warning">This action cannot be undone.</div>
+<dl class="row">
+  <dt class="col-sm-3">Title</dt><dd class="col-sm-9">@Model.Title</dd>
+  <dt class="col-sm-3">Project</dt><dd class="col-sm-9">@Model.ProjectID</dd>
+</dl>
+<form asp-action="Delete" method="post">
+  @Html.AntiForgeryToken()
+  <input type="hidden" asp-for="ServiceRequestID" />
+  <button class="btn btn-danger">Delete</button>
+  <a asp-action="Details" asp-route-id="@Model.ServiceRequestID" class="btn btn-outline-secondary">Cancel</a>
+</form>

@@ -11,13 +11,14 @@ namespace YachtCRM.Web.Seed
     /// - Custom builds incur extra variability
     /// - Interactions (good CRM) slightly mitigate delays
     /// - Yard quality, supplier risk, and seasonality add realistic variance
+    /// Also seeds ServiceRequests and CustomerFeedback.
     /// </summary>
     public static class BigSeeder
     {
         /// <summary>
         /// Generate N synthetic projects.
-        /// - singleCustomer=false (default): spread across multiple synthetic shipyards.
-        /// - singleCustomer=true: all projects go to singleCustomerName (created if missing).
+        /// - singleCustomer=false (default): spread across multiple synthetic shipyards (customers).
+        /// - singleCustomer=true: all projects assigned to singleCustomerName (created if missing).
         /// </summary>
         public static async Task GenerateAsync(
             YachtCrmDbContext db,
@@ -54,12 +55,12 @@ namespace YachtCRM.Web.Seed
             }
             else
             {
-                var mustHave = new (string Name, string Email, string Country, double QualityBonus, double CommsBonus)[]
+                var mustHave = new (string Name, string Email, string Country)[]
                 {
-                    ("Cantieri Demo S.p.A.",   "info@demo-yard.it",         "Italy",  +0.10, +0.15),
-                    ("Azimut (Synthetic)",     "info@azimut.example",       "Italy",  +0.05, +0.05),
-                    ("Ferretti (Synthetic)",   "info@ferretti.example",     "Italy",  +0.12, +0.10),
-                    ("Benetti (Synthetic)",    "info@benetti.example",      "Italy",  +0.08, +0.12),
+                    ("Cantieri Demo S.p.A.", "info@demo-yard.it",     "Italy"),
+                    ("Azimut (Synthetic)",   "info@azimut.example",   "Italy"),
+                    ("Ferretti (Synthetic)", "info@ferretti.example", "Italy"),
+                    ("Benetti (Synthetic)",  "info@benetti.example",  "Italy"),
                 };
 
                 foreach (var m in mustHave)
@@ -89,29 +90,30 @@ namespace YachtCRM.Web.Seed
             string[] adjectives = { "Aurora","Luna","Tridente","Sirena","Maestrale","Eolo","Nettuno","Stella","Aria","Onda","Levante","Scirocco","Aliseo" };
             int[] series        = { 38,45,52,58,63,70,78,90,110 };
 
-            // Coefficients (tunable, documented for your dissertation)
-            const double tasksAlphaPerMeter   = 1.2;  // baseline tasks per meter of length
+            // Coefficients (document in the dissertation)
+            const double tasksAlphaPerMeter   = 1.2;
             const double tasksNoiseSigma      = 6.0;
             const int    tasksMin             = 12;
             const int    tasksMax             = 200;
 
-            const double crBaseIntercept      = 0.8;  // base CRs even for small boats
-            const double crPer12m             = 0.9;  // CRs rise with size
-            const double crCustomBoost        = 2.2;  // custom builds cause extra CRs
+            const double crBaseIntercept      = 0.8;
+            const double crPer12m             = 0.9;
+            const double crCustomBoost        = 2.2;
             const double crNoiseSigma         = 1.2;
 
             // Delay model (days)
-            const double delayPerCR           = 3.1;  // every CR adds ~3 days
-            const double delayPerMeterAbove40 = 0.55; // larger yachts trend to longer delays
-            const int    customDelayMin       = 18;   // custom option base delay (min..max)
+            const double delayPerCR           = 3.1;
+            const double delayPerMeterAbove40 = 0.55;
+            const int    customDelayMin       = 18;
             const int    customDelayMax       = 45;
-            const double supplierRiskProb     = 0.09; // chance of supplier issue outlier
-            const int    supplierDelayMin     = 10;   // outlier adds extra delay
+            const double supplierRiskProb     = 0.09;
+            const int    supplierDelayMin     = 10;
             const int    supplierDelayMax     = 60;
-            const double interactionsMitigate = 0.15; // each 10 interactions shave ~1.5 days (weak effect)
-            const double delayNoiseSigma      = 10.0; // general unpredictability
-            const int    delayFloor           = -25;  // allow early finish (negative days)
+            const double interactionsMitigate = 0.15; // each 10 interactions ≈ 1.5 days shaved (× quality)
+            const double delayNoiseSigma      = 10.0;
+            const int    delayFloor           = -25;
 
+            // -------- Create Projects (+ Tasks, CRs, Interactions) --------
             for (int i = 0; i < count; i++)
             {
                 var cust  = customers[rand.Next(customers.Count)];
@@ -119,7 +121,6 @@ namespace YachtCRM.Web.Seed
                 var model = models[rand.Next(models.Count)];
                 bool isCustom = rand.NextDouble() < 0.30;
 
-                // Start & planned window with seasonality (summer starts tend to face small supplier pressure later)
                 var startFrom  = new DateTime(startYear, 1, 1);
                 var start      = startFrom.AddDays(rand.Next((int)(DateTime.UtcNow - startFrom).TotalDays));
                 var plannedDays = rand.Next(150, 540); // 5–18 months
@@ -128,43 +129,36 @@ namespace YachtCRM.Web.Seed
                 var tasks = (int)Math.Round(tasksAlphaPerMeter * (double)model.Length + Normal(rand, 0, tasksNoiseSigma));
                 tasks = Math.Clamp(tasks, tasksMin, tasksMax);
 
-                // CRs depend on length (per 12m), plus custom boost + noise
+                // CRs depend on length, custom, + noise
                 var crMean = crBaseIntercept
                            + crPer12m * (double)model.Length / 12.0
                            + (isCustom ? crCustomBoost : 0.0)
                            + Normal(rand, 0, crNoiseSigma);
                 var crs = Math.Clamp((int)Math.Round(crMean), 0, 20);
 
-                // Interactions: baseline with tasks & CRs; better comms yards lean higher earlier
+                // Interactions
                 var interactions = Math.Clamp((int)Math.Round(tasks / 12.0 + crs * 0.6 + 5 * mod.Comms + Normal(rand, 0, 2.0)), 0, 60);
 
-                // Seasonality factor (starting near summer → slight supplier risk later)
-                var season = start.Month;
-                var seasonBump = (season >= 6 && season <= 9) ? 0.08 : 0.0; // +8% delay in summer starts
-
-                // Supplier risk outlier
+                // Seasonality: summer starts → slightly higher supplier risk
+                var seasonBump = (start.Month is >= 6 and <= 9) ? 0.08 : 0.0;
                 var supplierHit = rand.NextDouble() < (supplierRiskProb + seasonBump);
                 var supplierDelay = supplierHit ? rand.Next(supplierDelayMin, supplierDelayMax + 1) : 0;
 
-                // Yard quality reduces delay a bit
-                var qualityMitigate = mod.Quality;
-
-                // Core delay model
+                // Core delay
                 var delay =
                     delayPerCR * crs
                     + delayPerMeterAbove40 * Math.Max(0.0, (double)model.Length - 40.0)
                     + (isCustom ? rand.Next(customDelayMin, customDelayMax + 1) : 0)
                     + supplierDelay
-                    - interactionsMitigate * (interactions / 10.0) * 10.0 * qualityMitigate // small mitigation scaled by yard quality
+                    - interactionsMitigate * (interactions / 10.0) * 10.0 * mod.Quality
                     + Normal(rand, 0, delayNoiseSigma);
 
-                var delayDays = (int)Math.Round(delay);
-                delayDays = Math.Max(delayDays, delayFloor);
+                var delayDays = Math.Max((int)Math.Round(delay), delayFloor);
 
-                // Price (customs mark-up + moderate variability)
+                // Price
                 var priceMultiplier = isCustom ? 1.22 + rand.NextDouble() * 0.25 : 1.04 + rand.NextDouble() * 0.22;
 
-                // Project naming
+                // Name
                 var name = $"Project {adjectives[rand.Next(adjectives.Length)]} {series[rand.Next(series.Length)]}-{rand.Next(10, 99)}" + (isCustom ? " Custom" : "");
 
                 var proj = new Project
@@ -192,7 +186,7 @@ namespace YachtCRM.Web.Seed
                     });
                 }
 
-                // Change Requests (with some days/cost impact)
+                // Change Requests
                 for (int c = 0; c < crs; c++)
                 {
                     db.ChangeRequests.Add(new ChangeRequest
@@ -220,6 +214,61 @@ namespace YachtCRM.Web.Seed
             }
 
             await db.SaveChangesAsync();
+
+            // -------- Seed Service Requests (up to 3 per first 300 projects) --------
+            var srRand = new Random(3);
+            var projIds = await db.Projects
+                .OrderBy(p => p.ProjectID)
+                .Select(p => new { p.ProjectID, p.PlannedStart })
+                .ToListAsync();
+
+            foreach (var p in projIds.Take(Math.Min(300, projIds.Count)))
+            {
+                var n = srRand.Next(0, 4); // up to 3 per project
+                for (int i = 0; i < n; i++)
+                {
+                    var opened = p.PlannedStart.AddDays(srRand.Next(0, 90));
+                    DateTime? closed = srRand.NextDouble() < 0.6 ? opened.AddDays(srRand.Next(2, 40)) : null;
+
+                    db.ServiceRequests.Add(new ServiceRequest
+                    {
+                        ProjectID   = p.ProjectID,
+                        Title       = srRand.NextDouble() < 0.5 ? "Warranty claim" : "Maintenance request",
+                        Type        = srRand.NextDouble() < 0.5 ? "Warranty" : "Maintenance",
+                        Status      = closed == null ? "Open" : "Closed",
+                        RequestDate = opened,
+                        CompletedOn = closed,
+                        Description = "Auto-seeded"
+                    });
+                }
+            }
+
+            // -------- Seed Customer Feedback (skew positive; 15% detractors) --------
+            var fbRand = new Random(4);
+            var projMeta = await db.Projects
+                .OrderBy(p => p.ProjectID)
+                .Select(p => new { p.ProjectID, p.CustomerID, End = p.ActualEnd ?? p.PlannedEnd })
+                .ToListAsync();
+
+            foreach (var p in projMeta.Take(Math.Min(300, projMeta.Count)))
+            {
+                if (fbRand.NextDouble() < 0.65) // 65% have feedback
+                {
+                    var score = fbRand.NextDouble() < 0.15 ? fbRand.Next(0, 6) : fbRand.Next(7, 10);
+                    db.CustomerFeedbacks.Add(new CustomerFeedback
+                    {
+                        CustomerID = p.CustomerID,
+                        ProjectID  = p.ProjectID,
+                        Score      = score,
+                        Comments   = score >= 9 ? "Excellent delivery and communication."
+                                   : score >= 7 ? "Good overall; a few delays."
+                                                : "Unclear updates; delays impacted schedule.",
+                        SubmittedOn = p.End.AddDays(fbRand.Next(0, 30))
+                    });
+                }
+            }
+
+            await db.SaveChangesAsync();
         }
 
         // --- Helpers ---
@@ -236,7 +285,6 @@ namespace YachtCRM.Web.Seed
         private static string ComputeStatus(DateTime start, int plannedDays, int delayDays)
         {
             var today = DateTime.UtcNow.Date;
-            var plannedEnd = start.AddDays(plannedDays).Date;
             var actualEnd  = start.AddDays(plannedDays + delayDays).Date;
 
             if (today < start.Date) return "Planning";
@@ -270,6 +318,7 @@ namespace YachtCRM.Web.Seed
         }
     }
 }
+
 
 
 

@@ -1,90 +1,56 @@
 @model IEnumerable<YachtCRM.Domain.Project>
 @{
     ViewData["Title"] = "Projects";
-    string active = (ViewBag.FilterStatus as string) ?? "";
-    string q = (ViewBag.Query as string) ?? "";
+    var active = (string)(ViewBag.FilterStatus ?? "");
+    string btn(string val) => val == active ? "btn btn-sm btn-primary" : "btn btn-sm btn-outline-primary";
+    var q = (string)(ViewBag.Query ?? "");
     int? customerId = ViewBag.CustomerId as int?;
-    int page = ViewBag.Page ?? 1;
-    int pageSize = ViewBag.PageSize ?? 25;
-    int total = ViewBag.Total ?? 0;
-    int totalPages = ViewBag.TotalPages ?? 1;
-
-    string PageUrl(int p)
-    {
-        var route = new { page = p, pageSize, status = active, q, customerId };
-        return Url.Action("Index", route) ?? "#";
-    }
-
-    string Chip(string text, string? val)
-    {
-        bool isActive = (string.IsNullOrEmpty(val) && string.IsNullOrEmpty(active)) || (!string.IsNullOrEmpty(val) && val == active);
-        string cls = isActive ? "btn btn-sm btn-primary" : "btn btn-sm btn-outline-primary";
-        var route = new { status = val, q, customerId };
-        string href = Url.Action("Index", route) ?? "#";
-        return $"<a class=\"{cls} me-2\" href=\"{href}\">{text}</a>";
-    }
 }
 
 <h2 class="mb-3">Projects</h2>
 
-@if (customerId != null)
-{
-  <div class="alert alert-info py-2 d-flex align-items-center justify-content-between">
-    <div>
-      Filtering by shipyard:
-      <strong>@Model.FirstOrDefault()?.Customer?.Name</strong>
-    </div>
-    <div>
-      <a class="btn btn-sm btn-outline-secondary"
-         href="@Url.Action("Index", new { status = active, q })">
-         Clear yard filter
-      </a>
-    </div>
-  </div>
-}
-
-<div class="d-flex align-items-center mb-3">
-  @Html.Raw(Chip("All", null))
-  @Html.Raw(Chip("Planning", "Planning"))
-  @Html.Raw(Chip("InProgress", "InProgress"))
-  @Html.Raw(Chip("Completed", "Completed"))
+<div class="d-flex align-items-center mb-3 gap-2 flex-wrap">
+  <a class="@btn("")" asp-action="Index">All</a>
+  <a class="@btn("Planning")" asp-action="Index" asp-route-status="Planning" asp-route-q="@q" asp-route-customerId="@customerId">Planning</a>
+  <a class="@btn("InProgress")" asp-action="Index" asp-route-status="InProgress" asp-route-q="@q" asp-route-customerId="@customerId">InProgress</a>
+  <a class="@btn("Completed")" asp-action="Index" asp-route-status="Completed" asp-route-q="@q" asp-route-customerId="@customerId">Completed</a>
 </div>
 
 <form method="get" class="row g-2 mb-3">
-  <input type="hidden" name="customerId" value="@(customerId?.ToString() ?? "")" />
   <div class="col-auto">
-    <input name="q" value="@q" class="form-control" placeholder="Search project, customer, model..." />
+    <input name="q" value="@q" class="form-control" placeholder="Search projects, customer, model..." />
   </div>
-  <div class="col-auto">
-    <input name="status" value="@active" class="form-control" placeholder="Status (Planning, InProgress, Completed)" />
-  </div>
+  <input type="hidden" name="status" value="@active" />
+  @if (customerId.HasValue)
+  {
+    <input type="hidden" name="customerId" value="@customerId" />
+  }
   <div class="col-auto">
     <button class="btn btn-outline-primary">Filter</button>
     <a asp-action="Index" class="btn btn-outline-secondary ms-2">Clear</a>
   </div>
 </form>
 
-<div class="table-responsive">
-<table class="table table-striped align-middle">
-  <thead>
-    <tr>
-      <th style="width:80px;">ID</th>
-      <th>Name</th>
-      <th>Customer</th>
-      <th>Model</th>
-      <th class="text-end" style="width:160px;">Total Price</th>
-      <th style="width:140px;">Status</th>
-      <th style="width:120px;"></th>
-    </tr>
-  </thead>
-  <tbody>
-  @if (!Model.Any())
-  {
-    <tr><td colspan="7" class="text-muted">No projects found.</td></tr>
-  }
-  else
-  {
-    foreach (var p in Model)
+@if (!Model.Any())
+{
+  <div class="alert alert-info">No projects match your filters.</div>
+}
+else
+{
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th style="width:80px;">ID</th>
+        <th>Name</th>
+        <th>Customer</th>
+        <th>Model</th>
+        <th class="text-end" style="width:160px;">Total Price</th>
+        <th style="width:140px;">Status</th>
+        <th style="width:120px;"></th>
+      </tr>
+    </thead>
+    <tbody>
+    @foreach (var p in Model)
     {
       <tr>
         <td>@p.ProjectID</td>
@@ -98,38 +64,13 @@
         </td>
       </tr>
     }
-  }
-  </tbody>
-</table>
-</div>
-
-@if (totalPages > 1)
-{
-  <nav aria-label="Projects pagination" class="mt-3">
-    <ul class="pagination">
-      <li class="page-item @(page <= 1 ? "disabled" : "")">
-        <a class="page-link" href="@(page <= 1 ? "#" : PageUrl(page - 1))">Prev</a>
-      </li>
-
-      @for (int p = Math.Max(1, page - 2); p <= Math.Min(totalPages, page + 2); p++)
-      {
-        <li class="page-item @(p == page ? "active" : "")">
-          <a class="page-link" href="@PageUrl(p)">@p</a>
-        </li>
-      }
-
-      <li class="page-item @(page >= totalPages ? "disabled" : "")">
-        <a class="page-link" href="@(page >= totalPages ? "#" : PageUrl(page + 1))">Next</a>
-      </li>
-    </ul>
-    <div class="text-muted small">
-      Showing @(((page - 1) * pageSize) + Math.Min(1, total))–@(Math.Min(page * pageSize, total)) of @total
-    </div>
-  </nav>
+    </tbody>
+  </table>
 }
 
-<p class="mt-3">
+<p>
   <a class="btn btn-success" asp-action="Create">+ New Project</a>
 </p>
+
 
 
