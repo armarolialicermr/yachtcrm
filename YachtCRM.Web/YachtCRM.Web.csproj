@@ -24,14 +24,6 @@
     <PackageReference Include="Microsoft.ML.Mkl.Components" Version="4.0.2" />
   </ItemGroup>
 
-  <!-- Unico ItemGroup per delayModel.zip (se davvero usato) -->
-  <ItemGroup>
-    <None Include="delayModel.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
-    </None>
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\YachtCRM.Infrastructure\YachtCRM.Infrastructure.csproj" />
     <ProjectReference Include="..\YachtCRM.Application\YachtCRM.Application.csproj" />
